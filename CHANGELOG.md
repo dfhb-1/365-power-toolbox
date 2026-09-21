@@ -38,9 +38,9 @@ First release.
 - Exchange Online and Microsoft Graph are declared as external dependencies rather than
   required modules, so importing PowerToolbox succeeds on a machine with neither SDK
   installed. They are checked when a command that needs them actually runs.
-- `install.ps1` removes the superseded `CalendarPermissions`, `EntraGroupMembers` and
-  `HuttonTools` modules from your module path, since they export the same command names and
-  would otherwise shadow PowerToolbox unpredictably. Pass `-KeepLegacy` to leave them.
+- `install.ps1` removes the superseded `CalendarPermissions` and `EntraGroupMembers` modules
+  from your module path, since they export the same command names and would otherwise shadow
+  PowerToolbox unpredictably. Pass `-KeepLegacy` to leave them in place.
 
 [Unreleased]: https://github.com/dfhb-1/365-power-toolbox/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/dfhb-1/365-power-toolbox/releases/tag/v1.0.0

@@ -126,9 +126,7 @@ try {
     }
 
     if (-not $KeepLegacy) {
-        # HuttonTools is the former name of this module; it exports the same command
-        # names, so leaving it installed would shadow this one unpredictably.
-        foreach ($legacy in @('CalendarPermissions', 'EntraGroupMembers', 'HuttonTools')) {
+        foreach ($legacy in @('CalendarPermissions', 'EntraGroupMembers')) {
             $legacyPath = Join-Path $installRoot $legacy
             if (Test-Path $legacyPath) {
                 Remove-Item -Path $legacyPath -Recurse -Force
