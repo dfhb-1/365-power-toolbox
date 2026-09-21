@@ -1,0 +1,103 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag matches ModuleVersion
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $manifest = Import-PowerShellDataFile ./PowerToolbox/PowerToolbox.psd1
+          $expected = "v$($manifest.ModuleVersion)"
+          $actual = '${{ github.ref_name }}'
+          if ($expected -ne $actual) {
+            throw "Tag $actual does not match ModuleVersion $($manifest.ModuleVersion). Bump the manifest or retag."
+          }
+          "Tag $actual matches the manifest." | Write-Host
+          "version=$($manifest.ModuleVersion)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Install test dependencies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module Pester -MinimumVersion 5.5 -Force -SkipPublisherCheck -Scope CurrentUser
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+
+      - name: Run Pester
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module Pester -MinimumVersion 5.5 -Force
+          Invoke-Pester ./tests -CI
+
+      - name: Build PowerToolbox.zip
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # The zip root must hold PowerToolbox/ and install.ps1 side by side: install.ps1
+          # locates the manifest by searching the extracted tree, and Update-PowerToolbox
+          # expects the release to carry its own installer.
+          $staging = Join-Path $env:RUNNER_TEMP 'stage'
+          New-Item -ItemType Directory -Path $staging -Force | Out-Null
+          Copy-Item -Path ./PowerToolbox -Destination (Join-Path $staging 'PowerToolbox') -Recurse
+          Copy-Item -Path ./install.ps1 -Destination $staging
+          Compress-Archive -Path (Join-Path $staging '*') -DestinationPath ./PowerToolbox.zip -Force
+
+          # Prove the layout rather than trusting it: a wrong shape only shows up when a
+          # user runs the installer, long after the release is published.
+          $check = Join-Path $env:RUNNER_TEMP 'check'
+          Expand-Archive -Path ./PowerToolbox.zip -DestinationPath $check -Force
+          foreach ($required in 'install.ps1', 'PowerToolbox/PowerToolbox.psd1') {
+            if (-not (Test-Path (Join-Path $check $required))) {
+              throw "PowerToolbox.zip is missing $required"
+            }
+          }
+          "Archive layout verified." | Write-Host
+
+      - name: Extract release notes from CHANGELOG
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = $env:version
+          $lines = Get-Content ./CHANGELOG.md
+          $start = -1
+          $end = $lines.Count
+
+          for ($i = 0; $i -lt $lines.Count; $i++) {
+            if ($lines[$i] -match "^##\s*\[$([regex]::Escape($version))\]") { $start = $i + 1; continue }
+            if ($start -lt 0) { continue }
+            # Stop at the next version heading, or at the link-reference definitions that
+            # Keep a Changelog puts at the bottom - those are not release notes.
+            if ($lines[$i] -match '^##\s*\[') { $end = $i; break }
+            if ($lines[$i] -match '^\[[^\]]+\]:\s*\S') { $end = $i; break }
+          }
+
+          if ($start -lt 0) {
+            "No CHANGELOG section for $version; falling back to a generic body." | Write-Host
+            $body = "PowerToolbox $version"
+          }
+          else {
+            $body = ($lines[$start..($end - 1)] -join "`n").Trim()
+          }
+
+          Set-Content -Path ./release-notes.md -Value $body
+          "--- release notes ---" | Write-Host
+          $body | Write-Host
+
+      - name: Publish the release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: PowerToolbox.zip
+          body_path: release-notes.md
