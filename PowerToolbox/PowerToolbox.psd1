@@ -1,6 +1,6 @@
 @{
     RootModule           = 'PowerToolbox.psm1'
-    ModuleVersion        = '1.0.0'
+    ModuleVersion        = '2.0.0'
     GUID                 = '6f65242f-f64d-40fc-822c-9037197ffaeb'
     Author               = 'PowerToolbox contributors'
     CompanyName          = ''
@@ -11,8 +11,8 @@
 
     FunctionsToExport    = @(
         'Add-CalendarPermission',
-        'Add-EntraGroupMember',
-        'Remove-EntraGroupMember',
+        'Add-PtGroupMember',
+        'Remove-PtGroupMember',
         'Update-PowerToolbox'
     )
     CmdletsToExport      = @()

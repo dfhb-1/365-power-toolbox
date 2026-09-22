@@ -1,4 +1,4 @@
-function Remove-EntraGroupMember {
+function Remove-PtGroupMember {
     <#
     .SYNOPSIS
         Remove one or more users from a Microsoft Entra ID group.
@@ -24,13 +24,13 @@ function Remove-EntraGroupMember {
         Optional path for a run log. Omit to log to the console only.
 
     .EXAMPLE
-        Remove-EntraGroupMember -GroupName "Sales Team" -Users "user@contoso.com"
+        Remove-PtGroupMember -GroupName "Sales Team" -Users "user@contoso.com"
 
     .EXAMPLE
-        Remove-EntraGroupMember -GroupId "11111111-2222-3333-4444-555555555555" -CsvPath .\offboarding.csv -WhatIf
+        Remove-PtGroupMember -GroupId "11111111-2222-3333-4444-555555555555" -CsvPath .\offboarding.csv -WhatIf
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '',
-        Justification = 'ShouldProcess is called by Invoke-EgmMembershipChange, which this function splats -WhatIf into. The analyzer cannot see through the delegation; -WhatIf was verified to reach the worker and suppress the change.')]
+        Justification = 'ShouldProcess is called by Invoke-PtGroupMembershipChange, which this function splats -WhatIf into. The analyzer cannot see through the delegation; -WhatIf was verified to reach the worker and suppress the change.')]
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [string]$GroupName,
@@ -40,5 +40,5 @@ function Remove-EntraGroupMember {
         [string]$LogPath
     )
 
-    Invoke-EgmMembershipChange -Action Remove @PSBoundParameters
+    Invoke-PtGroupMembershipChange -Action Remove @PSBoundParameters
 }

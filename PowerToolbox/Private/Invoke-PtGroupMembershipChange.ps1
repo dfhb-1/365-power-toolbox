@@ -1,4 +1,4 @@
-function Invoke-EgmMembershipChange {
+function Invoke-PtGroupMembershipChange {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [ValidateSet('Add', 'Remove')][string]$Action,
@@ -11,10 +11,10 @@ function Invoke-EgmMembershipChange {
 
     Connect-PtGraph
 
-    $group = Resolve-EgmGroup -GroupName $GroupName -GroupId $GroupId -LogPath $LogPath
+    $group = Resolve-PtGroup -GroupName $GroupName -GroupId $GroupId -LogPath $LogPath
     Write-PtLog "Target group: $($group.DisplayName) ($($group.Id))" 'INFO' $LogPath
 
-    $userIdentifiers = Get-EgmUserList -Users $Users -CsvPath $CsvPath
+    $userIdentifiers = Get-PtUserList -Users $Users -CsvPath $CsvPath
     Write-PtLog "Processing $($userIdentifiers.Count) user(s) - action: $Action" 'INFO' $LogPath
 
     # Pull membership once rather than per user

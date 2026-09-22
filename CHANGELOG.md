@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-09-22
+
+### Changed
+
+- **Breaking:** `Add-EntraGroupMember` and `Remove-EntraGroupMember` are renamed to
+  `Add-PtGroupMember` and `Remove-PtGroupMember`. Their old names collide with cmdlets of the
+  same name shipped by Microsoft's own `Microsoft.Entra.Groups` module; without an explicit
+  `Import-Module PowerToolbox -Force`, PowerShell's command auto-loading would resolve the bare
+  name to Microsoft's cmdlet instead of ours, which has different parameters and fails with
+  "a parameter cannot be found." Parameters and behavior are unchanged - update call sites to
+  the new command names.
+
 ## [1.0.0] - 2026-09-21
 
 First release.
@@ -42,5 +54,6 @@ First release.
   from your module path, since they export the same command names and would otherwise shadow
   PowerToolbox unpredictably. Pass `-KeepLegacy` to leave them in place.
 
-[Unreleased]: https://github.com/dfhb-1/365-power-toolbox/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/dfhb-1/365-power-toolbox/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/dfhb-1/365-power-toolbox/releases/tag/v2.0.0
 [1.0.0]: https://github.com/dfhb-1/365-power-toolbox/releases/tag/v1.0.0

@@ -30,7 +30,7 @@ Install these once, for the commands you actually use:
 
 ```powershell
 Install-Module ExchangeOnlineManagement -Scope CurrentUser   # Add-CalendarPermission
-Install-Module Microsoft.Graph -Scope CurrentUser            # Add-/Remove-EntraGroupMember
+Install-Module Microsoft.Graph -Scope CurrentUser            # Add-/Remove-PtGroupMember
 ```
 
 The installer tells you which are missing but never installs them for you. PowerToolbox
@@ -71,24 +71,24 @@ Add-CalendarPermission -Mailbox director@contoso.com -User "Sales Team" -AccessR
 `PublishingAuthor`, `Editor`, `PublishingEditor` and `Owner`. Run it with no arguments and it
 prompts for the mailbox and user.
 
-### `Add-EntraGroupMember`
+### `Add-PtGroupMember`
 
 Add one or more users to a Microsoft Entra ID group.
 
 ```powershell
-Add-EntraGroupMember -GroupName "Sales Team" -Users "user@contoso.com"
+Add-PtGroupMember -GroupName "Sales Team" -Users "user@contoso.com"
 
-Add-EntraGroupMember -GroupName "All Staff" -CsvPath .\newhires.csv -WhatIf
+Add-PtGroupMember -GroupName "All Staff" -CsvPath .\newhires.csv -WhatIf
 ```
 
-### `Remove-EntraGroupMember`
+### `Remove-PtGroupMember`
 
 Remove one or more users from a Microsoft Entra ID group.
 
 ```powershell
-Remove-EntraGroupMember -GroupName "Sales Team" -Users "user@contoso.com"
+Remove-PtGroupMember -GroupName "Sales Team" -Users "user@contoso.com"
 
-Remove-EntraGroupMember -GroupId "11111111-2222-3333-4444-555555555555" -CsvPath .\offboarding.csv -WhatIf
+Remove-PtGroupMember -GroupId "11111111-2222-3333-4444-555555555555" -CsvPath .\offboarding.csv -WhatIf
 ```
 
 Both group commands accept the group by `-GroupName` or `-GroupId`, and users by UPN, email
@@ -113,7 +113,7 @@ Run `Get-Help <command> -Full` for the complete parameter list on any of these.
 
 ## Troubleshooting
 
-**"The term 'Add-EntraGroupMember' is not recognized" right after installing.**
+**"The term 'Add-PtGroupMember' is not recognized" right after installing.**
 You installed from one PowerShell edition and are running another. Windows PowerShell 5.1 and
 PowerShell 7 read different module folders, so run `install.ps1` from the shell you actually
 use. Check where it landed with `Get-Module PowerToolbox -ListAvailable`.
@@ -133,6 +133,15 @@ Get-MgGroup -Filter "startswith(displayName,'Sales')"
 
 **"Ambiguous group name - rerun with -GroupId."** Two groups share that display name. The
 command lists both with their IDs; pick one and pass `-GroupId`.
+
+**"A parameter cannot be found that matches parameter name 'GroupName'."** Something else on
+your machine owns the name you called - most likely Microsoft's own `Microsoft.Entra.Groups`
+module, which ships its own `Add-EntraGroupMember`/`Remove-EntraGroupMember` cmdlets with
+different parameters, and wins PowerShell's command auto-loading if PowerToolbox was never
+explicitly imported. This is why the commands are named `Add-PtGroupMember` and
+`Remove-PtGroupMember` as of v2.0.0 - if you are still typing the old names from muscle memory,
+switch to the `Pt` ones. Check with `Get-Command Add-PtGroupMember -All` if you are unsure
+which module answered.
 
 **Removing a member fails on a group that looks fine.** Dynamic-membership groups compute
 their members from a rule, so members cannot be removed directly. Change the rule instead.

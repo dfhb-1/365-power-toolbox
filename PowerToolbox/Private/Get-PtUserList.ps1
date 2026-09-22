@@ -1,4 +1,4 @@
-function Get-EgmUserList {
+function Get-PtUserList {
     param([string[]]$Users, [string]$CsvPath)
 
     $list = [System.Collections.Generic.List[string]]::new()

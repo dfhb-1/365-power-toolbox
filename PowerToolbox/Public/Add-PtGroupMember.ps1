@@ -1,4 +1,4 @@
-function Add-EntraGroupMember {
+function Add-PtGroupMember {
     <#
     .SYNOPSIS
         Add one or more users to a Microsoft Entra ID group.
@@ -23,13 +23,13 @@ function Add-EntraGroupMember {
         Optional path for a run log. Omit to log to the console only.
 
     .EXAMPLE
-        Add-EntraGroupMember -GroupName "Sales Team" -Users "user@contoso.com"
+        Add-PtGroupMember -GroupName "Sales Team" -Users "user@contoso.com"
 
     .EXAMPLE
-        Add-EntraGroupMember -GroupName "All Staff" -CsvPath .\newhires.csv -WhatIf
+        Add-PtGroupMember -GroupName "All Staff" -CsvPath .\newhires.csv -WhatIf
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '',
-        Justification = 'ShouldProcess is called by Invoke-EgmMembershipChange, which this function splats -WhatIf into. The analyzer cannot see through the delegation; -WhatIf was verified to reach the worker and suppress the change.')]
+        Justification = 'ShouldProcess is called by Invoke-PtGroupMembershipChange, which this function splats -WhatIf into. The analyzer cannot see through the delegation; -WhatIf was verified to reach the worker and suppress the change.')]
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [string]$GroupName,
@@ -39,5 +39,5 @@ function Add-EntraGroupMember {
         [string]$LogPath
     )
 
-    Invoke-EgmMembershipChange -Action Add @PSBoundParameters
+    Invoke-PtGroupMembershipChange -Action Add @PSBoundParameters
 }

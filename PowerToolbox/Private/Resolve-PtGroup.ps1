@@ -1,4 +1,4 @@
-function Resolve-EgmGroup {
+function Resolve-PtGroup {
     param([string]$GroupName, [string]$GroupId, [string]$LogPath)
 
     if (-not $GroupId -and -not $GroupName) {

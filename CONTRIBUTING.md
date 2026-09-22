@@ -20,9 +20,9 @@
    | `Write-PtLog` | Timestamped console output, colour-coded by level, optionally appended to `-LogPath`. |
    | `Get-PtInstallPath` | The current user's module folder for the running edition. |
    | `Get-PtGitHubRelease` | Looks up a release on GitHub and returns its version, notes and asset URL. |
-   | `Resolve-EgmGroup` | Resolves a group by name or ID, failing clearly when a name is ambiguous. |
-   | `Get-EgmUserList` | Merges `-Users` and `-CsvPath` into one de-duplicated list. |
-   | `Invoke-EgmMembershipChange` | The add/remove worker: handles ShouldProcess, skipping and the summary. |
+   | `Resolve-PtGroup` | Resolves a group by name or ID, failing clearly when a name is ambiguous. |
+   | `Get-PtUserList` | Merges `-Users` and `-CsvPath` into one de-duplicated list. |
+   | `Invoke-PtGroupMembershipChange` | The add/remove worker: handles ShouldProcess, skipping and the summary. |
 
 3. **Add comment-based help** with a `.SYNOPSIS` and at least one `.EXAMPLE`. The tests enforce
    both. Use `contoso.com` placeholders — this repository is public, so never commit real user
@@ -66,8 +66,14 @@ enforces this in both directions, so a new tool cannot be silently left unexport
 **`Verb-Noun` with an approved verb** — check with `Get-Verb`. `New-Tool.ps1` validates this
 for you.
 
-**Prefix shared private helpers with `Pt-`** (`Write-PtLog`, `Connect-PtGraph`). Helpers
-specific to one tool family keep that family's prefix, as the `Egm-` group helpers do.
+**Prefix every exported command and private helper with `Pt`** (`Add-PtGroupMember`,
+`Write-PtLog`, `Connect-PtGraph`). This is not just a style choice: Microsoft's own SDKs
+(`Microsoft.Entra.Groups`, `ExchangeOnlineManagement`, etc.) ship cmdlets, and an exported
+name that matches one of theirs loses PowerShell's command auto-loading whenever PowerToolbox
+was not explicitly imported. `Add-EntraGroupMember` collided with `Microsoft.Entra.Groups`'s
+own cmdlet of the same name this way and had to be renamed to `Add-PtGroupMember` in v2.0.0 -
+before naming a new public function, check `Get-Command <name> -All` isn't already answered by
+something else a user is likely to have installed.
 
 **`SupportsShouldProcess` on anything that changes state**, and actually call
 `$PSCmdlet.ShouldProcess(...)` before the change. If you delegate that call to a worker
